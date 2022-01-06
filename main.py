@@ -12,14 +12,26 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 #Test command
 bot = commands.Bot(command_prefix="!")
-slash = SlashCommand(bot)
+slash = SlashCommand(bot, sync_commands=True)
 
 @slash.slash(
-	name="test",
-	description="Sends a test image"
+	name="Input",
+	description="Takes a URL",
+	guild_ids=[928649725396267049],
+	options=[
+		create_option(
+			name="URL",
+			description="Enter a URL",
+			required=True,
+			option_type=3,
+		)
+	],
 )
 
-async def test(ctx:SlashContext):
-	await ctx.send(file=discord.File('testPic.png'))
+async def Input(ctx:SlashContext, URL):
+	await ctx.send(URL)
 
 bot.run(TOKEN)
+
+
+
