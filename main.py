@@ -1,6 +1,7 @@
 import os
-
 import discord
+import download_manager
+
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_choice, create_option
@@ -15,12 +16,12 @@ bot = commands.Bot(command_prefix="!")
 slash = SlashCommand(bot, sync_commands=True)
 
 @slash.slash(
-	name="Input",
+	name="linkMedia",
 	description="Takes a URL",
 	guild_ids=[928649725396267049],
 	options=[
 		create_option(
-			name="URL",
+			name="address",
 			description="Enter a URL",
 			required=True,
 			option_type=3,
@@ -28,12 +29,13 @@ slash = SlashCommand(bot, sync_commands=True)
 	],
 )
 
-async def Input(ctx:SlashContext, URL):
+async def linkMedia(ctx:SlashContext, address):
 	try:
-		await ctx.send(URL)
+		download_manager.downloadMedia(address)
 		await ctx.send(file=discord.File('Downloads/temp.mp4'))
 
 	except discord.errors.HTTPException as e:
 		await ctx.send("The absolute unit of a file was way too large for Discord to handle. We may or may not handle this with file hosting services in the near or far future.")
 
 bot.run(TOKEN)
+
