@@ -29,9 +29,11 @@ slash = SlashCommand(bot, sync_commands=True)
 )
 
 async def Input(ctx:SlashContext, URL):
-	await ctx.send(URL)
+	try:
+		await ctx.send(URL)
+		await ctx.send(file=discord.File('Downloads/temp.mp4'))
+
+	except discord.errors.HTTPException as e:
+		await ctx.send("The absolute unit of a file was way too large for Discord to handle. We may or may not handle this with file hosting services in the near or far future.")
 
 bot.run(TOKEN)
-
-
-
