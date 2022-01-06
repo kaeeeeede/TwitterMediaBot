@@ -12,7 +12,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 #Test command
 bot = commands.Bot(command_prefix="!")
-slash = SlashCommand(bot, sync_commands=True)
+slash = SlashCommand(bot)
 
 @slash.slash(
 	name="test",
