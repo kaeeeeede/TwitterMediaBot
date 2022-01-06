@@ -19,7 +19,6 @@ slash = SlashCommand(bot, sync_commands=True)
 @slash.slash(
 	name="linkMedia",
 	description="Takes a URL",
-	guild_ids=[928649725396267049],
 	options=[
 		create_option(
 			name="address",
