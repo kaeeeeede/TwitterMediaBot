@@ -18,8 +18,12 @@ slash = SlashCommand(bot)
 	name="test",
 	description="Sends a test image"
 )
-
 async def test(ctx:SlashContext):
-	await ctx.send(file=discord.File('testPic.png'))
+	try:
+		await ctx.send(file=discord.File('Downloads/temp.mp4'))
+
+	except discord.errors.HTTPException as e:
+		await ctx.send("The absolute unit of a file was way too large for Discord to handle. We may or may not handle this with file hosting services in the near or far future.")
+
 
 bot.run(TOKEN)
