@@ -44,6 +44,10 @@ async def linkMedia(ctx:SlashContext, address):
 	except RuntimeError as e:
 		await ctx.send("The file took too long to download.")
 
+	except BaseException as e:
+		await ctx.send("Something unexpected went wrong. Trying again will likely not help, but feel free to do so.")
+		raise e
+
 
 @bot.event
 async def on_ready():
