@@ -5,8 +5,6 @@ class db:
 
 	@classmethod
 	def initDBCon(cls):
-		print("initing")
-		
 		return sqlite3.connect("interactions.db")
 
 	@classmethod
@@ -24,10 +22,9 @@ class db:
 		return cls.getCon().commit()
 
 	@classmethod
-	def execute(cls, query):
-		return cls.getCursor().execute(query)
+	def execute(cls, query, params = ()):
+		return cls.getCursor().execute(query, params)
 
-
-db.execute("CREATE TABLE interactions (datetime datetime)")
-db.execute("CREATE TABLE interaction (datetime datetime)")
-db.execute("CREATE TABLE interactio (datetime datetime)")
+if __name__ == "__main__":
+	db.execute("CREATE TABLE interactions (datetime datetime, url text, size bigint)")
+	db.commit()
