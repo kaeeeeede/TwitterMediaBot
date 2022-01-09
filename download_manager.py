@@ -15,7 +15,7 @@ def progress_hook(s):
 		latest_download_destination = s['filename']
 	
 
-def downloadMedia(url, filename = "Downloads/temp", sizeLimit = "8M", cleanupBeforeDownloading = True):
+def downloadMedia(url, filename = "Downloads/temp", cleanupBeforeDownloading = True):
 
 	if cleanupBeforeDownloading:
 		cleanup()
