@@ -1,6 +1,8 @@
 import os
 import discord
 import download_manager
+from db import db
+import datetime
 
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
@@ -32,12 +34,16 @@ async def linkMedia(ctx:SlashContext, address):
 	try:
 		await ctx.defer()
 		path = download_manager.downloadMedia(address)
-		filesize = format_byte_to_megabyte(get_filesize(path))
+		filesize_bytes = get_filesize(path)
+		filesize_mb = format_byte_to_megabyte(filesize_bytes)
 
 		await ctx.send(file=discord.File(path))
 
+		db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
+		db.commit()		
+
 	except discord.errors.HTTPException as e:
-		await ctx.send(f'The absolute unit of a file was way too large ({filesize} MB) for Discord to handle. We may or may not handle this with file hosting services in the near or far future.')
+		await ctx.send(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle. We may or may not handle this with file hosting services in the near or far future.')
 
 	except HTTPError as e:
 		await ctx.send("Could not establish a connection.")
@@ -58,6 +64,12 @@ def get_filesize(path):
 
 def format_byte_to_megabyte(byte):
 	return "{:.2f}".format(byte/1000/1000)
+
+def removeExtension(filename):
+	return filename.rsplit(".", 1)[0]
+
+def filepathToUrl(path):
+	return removeExtension(path.split("\\", 1)[1])
 	
 bot.run(TOKEN)
 
