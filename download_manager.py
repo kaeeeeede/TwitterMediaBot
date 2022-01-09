@@ -15,13 +15,13 @@ def progress_hook(s):
 		latest_download_destination = s['filename']
 	
 
-def downloadMedia(url, filename = "Downloads/temp", cleanupBeforeDownloading = True):
+def downloadMedia(url, path = "Downloads", cleanupBeforeDownloading = True):
 
 	if cleanupBeforeDownloading:
 		cleanup()
 
 	ydl_opts = {
-		'outtmpl' : f'{filename}.%(ext)s',
+		'outtmpl' : f'{path}/%(webpage_url)s.%(ext)s',
 		'format' : f'best',
 		'progress_hooks' : [progress_hook]
 	}
