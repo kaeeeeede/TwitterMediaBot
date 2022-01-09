@@ -29,14 +29,14 @@ slash = SlashCommand(bot, sync_commands=True)
 	],
 )
 async def linkMedia(ctx:SlashContext, address):
-	await ctx.defer()
-
 	try:
+		await ctx.defer()
 		path = download_manager.downloadMedia(address)
+		filesize = format_byte_to_megabyte(get_filesize(path))
+
 		await ctx.send(file=discord.File(path))
 
 	except discord.errors.HTTPException as e:
-		filesize = format_byte_to_megabyte(get_filesize(path))
 		await ctx.send(f'The absolute unit of a file was way too large ({filesize} MB) for Discord to handle. We may or may not handle this with file hosting services in the near or far future.')
 
 	except HTTPError as e:
