@@ -1,11 +1,15 @@
 import sqlite3
+import os.path
 
 class db:
 	_conn = None
 
 	@classmethod
 	def initDBCon(cls):
-		return sqlite3.connect("interactions.db")
+		BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+		db_path = os.path.join(BASE_DIR, "interactions.db")
+
+		return sqlite3.connect(db_path)
 
 	@classmethod
 	def getCon(cls):
