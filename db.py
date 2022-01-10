@@ -27,7 +27,7 @@ class db:
 
 	@classmethod
 	def getInteractionsBetween(cls, start, end):
-		query = "SELECT datetime, size FROM interactions WHERE datetime >= ? AND datetime <= ?"
+		query = "SELECT size FROM interactions WHERE datetime >= ? AND datetime <= ?"
 
 		return cls.execute(query, (start, end))
 

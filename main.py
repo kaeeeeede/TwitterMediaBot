@@ -76,6 +76,20 @@ def firstSecondOfDate(date):
 
 def finalSecondOfDate(date):
 	return datetime.datetime.combine(date, datetime.time.max)
+
+def aggregateCountAndSize(interactions):
+	countSum = 0
+	sizeSum = 0
+
+	for interaction in interactions:
+		countSum += 1
+		sizeSum += interaction[0]
+
+	return (countSum, sizeSum)
+
+def getTotalCountAndSizeBetween(startDate, endDate):
+	interactions = db.getInteractionsBetween(firstSecondOfDate(startDate), finalSecondOfDate(endDate))
+	return aggregateCountAndSize(interactions)
 	
 bot.run(TOKEN)
 
