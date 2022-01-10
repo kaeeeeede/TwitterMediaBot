@@ -22,7 +22,6 @@ report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS
 
 @slash.slash(
 	name="linkMedia",
-	guild_ids=report_guild_ids,
 	description="Takes a URL",
 	options=[
 		create_option(
@@ -84,19 +83,24 @@ async def linkMedia(ctx:SlashContext, address):
 )
 
 async def report(ctx:SlashContext, startdate="", enddate=""):
-	if startdate == "":
-		startdate=datetime.date.today()
-	else:
-		startdate=datetime.date.fromisoformat(startdate)
+	try:
+		if startdate == "":
+			startdate=datetime.date.today()
+		else:
+			startdate=datetime.date.fromisoformat(startdate)
 
-	if enddate == "":
-		enddate=datetime.date.today()
-	else:
-		enddate=datetime.date.fromisoformat(enddate)
+		if enddate == "":
+			enddate=datetime.date.today()
+		else:
+			enddate=datetime.date.fromisoformat(enddate)
 
-	(sizeSum, countSum) = getTotalCountAndSizeBetween(startdate, enddate)
-	reportEmbed = createReportEmbed(countSum, sizeSum, len(bot.guilds), str(startdate), str(enddate))
-	await ctx.send(embed=reportEmbed)
+	except ValueError as e:
+		await ctx.send("Oops. Might want to follow the given format.")
+
+	else:
+		(sizeSum, countSum) = getTotalCountAndSizeBetween(startdate, enddate)
+		reportEmbed = createReportEmbed(countSum, sizeSum, len(bot.guilds), str(startdate), str(enddate))
+		await ctx.send(embed=reportEmbed)
 
 @bot.event
 async def on_ready():
