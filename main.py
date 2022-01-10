@@ -23,6 +23,7 @@ guild_ids = [930097072458313798]
 
 @slash.slash(
 	name="linkMedia",
+	guild_ids=guild_ids,
 	description="Takes a URL",
 	options=[
 		create_option(
@@ -84,7 +85,9 @@ async def linkMedia(ctx:SlashContext, address):
 )
 
 async def report(ctx:SlashContext, startdate=date.today(), enddate=date.today()):
-	await ctx.send(startdate, " ", enddate)
+	(sizeSum, countSum) = getTotalCountAndSizeBetween(startdate, enddate)
+	reportEmbed = createReportEmbed(sizeSum, countSum, len(bot.guilds), str(startdate), str(enddate))
+	await ctx.send(embed=reportEmbed)
 
 @bot.event
 async def on_ready():
