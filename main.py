@@ -70,6 +70,12 @@ def removeExtension(filename):
 
 def filepathToUrl(path):
 	return removeExtension(path.split("\\", 1)[1])
+
+def firstSecondOfDate(date):
+	return datetime.datetime.combine(date, datetime.time.min)
+
+def finalSecondOfDate(date):
+	return datetime.datetime.combine(date, datetime.time.max)
 	
 bot.run(TOKEN)
 
