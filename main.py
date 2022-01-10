@@ -3,6 +3,7 @@ import discord
 import download_manager
 from db import db
 import datetime
+from datetime import date
 
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
@@ -26,7 +27,6 @@ guild_ids = [930097072458313798]
 	options=[
 		create_option(
 			name="address",
-			guild_ids=guild_ids,
 			description="Enter a URL",
 			required=True,
 			option_type=3,
@@ -65,6 +65,7 @@ async def linkMedia(ctx:SlashContext, address):
 
 @slash.slash(
 	name="report",
+	guild_ids=guild_ids,
 	description="Generates a report",
 	options=[
 		create_option(
@@ -82,8 +83,8 @@ async def linkMedia(ctx:SlashContext, address):
 	],
 )
 
-async def report(ctx:SlashContext, startdate=today, enddate=today):
-	await ctx.send("Hi")
+async def report(ctx:SlashContext, startdate=date.today(), enddate=date.today()):
+	await ctx.send(startdate, " ", enddate)
 
 @bot.event
 async def on_ready():
