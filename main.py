@@ -18,12 +18,15 @@ download_manager.max_download_duration = download_timeout
 bot = commands.Bot(command_prefix="!", activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 slash = SlashCommand(bot, sync_commands=True)
 
+guild_ids = [930097072458313798]
+
 @slash.slash(
 	name="linkMedia",
 	description="Takes a URL",
 	options=[
 		create_option(
 			name="address",
+			guild_ids=guild_ids,
 			description="Enter a URL",
 			required=True,
 			option_type=3,
@@ -59,6 +62,28 @@ async def linkMedia(ctx:SlashContext, address):
 
 	finally:
 		await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
+
+@slash.slash(
+	name="report",
+	description="Generates a report",
+	options=[
+		create_option(
+			name="startdate",
+			description="Enter the starting date",
+			required=False,
+			option_type=3,
+		),
+		create_option(
+			name="enddate",
+			description="Enter the ending date",
+			required=False,
+			option_type=3,
+		)	
+	],
+)
+
+async def report(ctx:SlashContext, startdate=today, enddate=today):
+	await ctx.send("Hi")
 
 @bot.event
 async def on_ready():
