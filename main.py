@@ -47,7 +47,7 @@ async def linkMedia(ctx:SlashContext, address):
 		db.commit()		
 
 	except discord.errors.HTTPException as e:
-		await ctx.send(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle. We may or may not handle this with file hosting services in the near or far future.')
+		await ctx.send(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle.')
 
 	except HTTPError as e:
 		await ctx.send("Could not establish a connection.")
@@ -81,7 +81,6 @@ async def linkMedia(ctx:SlashContext, address):
 		)	
 	],
 )
-
 async def report(ctx:SlashContext, startdate="", enddate=""):
 	try:
 		if startdate == "":
