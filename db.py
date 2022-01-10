@@ -25,6 +25,14 @@ class db:
 	def execute(cls, query, params = ()):
 		return cls.getCursor().execute(query, params)
 
+	@classmethod
+	def getInteractionsBetween(cls, start, end):
+		query = "SELECT size FROM interactions WHERE datetime >= ? AND datetime <= ?"
+
+		return cls.execute(query, (start, end))
+
 if __name__ == "__main__":
 	db.execute("CREATE TABLE interactions (datetime datetime, url text, size bigint)")
 	db.commit()
+		
+	
