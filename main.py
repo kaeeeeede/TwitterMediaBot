@@ -57,7 +57,7 @@ async def linkMedia(ctx:SlashContext, address):
 
 @bot.event
 async def on_ready():
-	print("Ready!")
+	print("Ready!")	
 
 def get_filesize(path):
 	return os.path.getsize(path)
@@ -90,6 +90,18 @@ def aggregateCountAndSize(interactions):
 def getTotalCountAndSizeBetween(startDate, endDate):
 	interactions = db.getInteractionsBetween(firstSecondOfDate(startDate), finalSecondOfDate(endDate))
 	return aggregateCountAndSize(interactions)
+
+def createReportEmbed(sizeSum, fileCount, serverCount, startDate, endDate):
+	embed = discord.Embed(title="Media link report", description=f'Served a total of **{format_byte_to_megabyte(sizeSum)} MB** over **{fileCount} files** in **{serverCount} servers!**', color=0x00ff1e)
+
+	if startDate == endDate:
+		footer = f'{startDate}'
+	else:
+		footer = f'{startDate} - {endDate}'
+
+	embed.set_footer(text=footer)
+
+	return embed
 	
 bot.run(TOKEN)
 
