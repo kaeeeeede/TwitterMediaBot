@@ -19,7 +19,7 @@ download_manager.max_download_duration = download_timeout
 bot = commands.Bot(command_prefix="!", activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 slash = SlashCommand(bot, sync_commands=True)
 
-report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS')]
+report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS').split(",")]
 
 @slash.slash(
 	name="linkMedia",
@@ -65,7 +65,7 @@ async def linkMedia(ctx:SlashContext, address):
 
 @slash.slash(
 	name="report",
-	guild_ids=guild_ids,
+	guild_ids=report_guild_ids,
 	description="Generates a report",
 	options=[
 		create_option(
