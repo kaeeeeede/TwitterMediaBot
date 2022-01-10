@@ -15,7 +15,7 @@ download_timeout = int(os.getenv('DOWNLOAD_TIMEOUT'))
 
 download_manager.max_download_duration = download_timeout
 
-bot = commands.Bot(command_prefix="!")
+bot = commands.Bot(command_prefix="!", activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 slash = SlashCommand(bot, sync_commands=True)
 
 @slash.slash(
@@ -30,9 +30,11 @@ slash = SlashCommand(bot, sync_commands=True)
 		)
 	],
 )
+
 async def linkMedia(ctx:SlashContext, address):
 	try:
 		await ctx.defer()
+		await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.playing, name='dead or is busy'))
 		path = download_manager.downloadMedia(address)
 		filesize_bytes = get_filesize(path)
 		filesize_mb = format_byte_to_megabyte(filesize_bytes)
@@ -40,19 +42,25 @@ async def linkMedia(ctx:SlashContext, address):
 		await ctx.send(file=discord.File(path))
 
 		db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
-		db.commit()		
+		db.commit()
+
+		await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))		
 
 	except discord.errors.HTTPException as e:
 		await ctx.send(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle. We may or may not handle this with file hosting services in the near or far future.')
+		await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 
 	except HTTPError as e:
 		await ctx.send("Could not establish a connection.")
+		await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 
 	except RuntimeError as e:
 		await ctx.send("The file took too long to download.")
+		await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 
 	except BaseException as e:
 		await ctx.send("Something unexpected went wrong. Trying again will likely not help, but feel free to do so.")
+		await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 		raise e
 
 @bot.event
@@ -72,4 +80,3 @@ def filepathToUrl(path):
 	return removeExtension(path.split("\\", 1)[1])
 	
 bot.run(TOKEN)
-
