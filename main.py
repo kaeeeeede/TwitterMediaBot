@@ -3,7 +3,6 @@ import discord
 import download_manager
 from db import db
 import datetime
-from datetime import date
 
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
@@ -23,7 +22,7 @@ report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS
 
 @slash.slash(
 	name="linkMedia",
-	guild_ids=guild_ids,
+	guild_ids=report_guild_ids,
 	description="Takes a URL",
 	options=[
 		create_option(
@@ -71,22 +70,32 @@ async def linkMedia(ctx:SlashContext, address):
 	options=[
 		create_option(
 			name="startdate",
-			description="Enter the starting date",
+			description="Enter the starting date (YYYY-MM-DD)",
 			required=False,
 			option_type=3,
 		),
 		create_option(
 			name="enddate",
-			description="Enter the ending date",
+			description="Enter the ending date (YYYY-MM-DD)",
 			required=False,
 			option_type=3,
 		)	
 	],
 )
 
-async def report(ctx:SlashContext, startdate=date.today(), enddate=date.today()):
+async def report(ctx:SlashContext, startdate="", enddate=""):
+	if startdate == "":
+		startdate=datetime.date.today()
+	else:
+		startdate=datetime.date.fromisoformat(startdate)
+
+	if enddate == "":
+		enddate=datetime.date.today()
+	else:
+		enddate=datetime.date.fromisoformat(enddate)
+
 	(sizeSum, countSum) = getTotalCountAndSizeBetween(startdate, enddate)
-	reportEmbed = createReportEmbed(sizeSum, countSum, len(bot.guilds), str(startdate), str(enddate))
+	reportEmbed = createReportEmbed(countSum, sizeSum, len(bot.guilds), str(startdate), str(enddate))
 	await ctx.send(embed=reportEmbed)
 
 @bot.event
