@@ -18,7 +18,7 @@ download_manager.max_download_duration = download_timeout
 bot = commands.Bot(command_prefix="!", activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 slash = SlashCommand(bot, sync_commands=True)
 
-guild_ids = [930097072458313798]
+report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS')]
 
 @slash.slash(
 	name="linkMedia",
