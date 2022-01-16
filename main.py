@@ -35,28 +35,29 @@ report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS
 
 async def linkMedia(ctx:SlashContext, address):
 	try:
-		await ctx.defer()
+		await ctx.defer(hidden=True)
 		await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.playing, name='dead or is busy'))
 		path = download_manager.downloadMedia(address)
 		filesize_bytes = get_filesize(path)
 		filesize_mb = format_byte_to_megabyte(filesize_bytes)
 
-		await ctx.send(file=discord.File(path))
+		await ctx.channel.send(file=discord.File(path))
+		await ctx.send("Done!", hidden = True)
 
 		db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
 		db.commit()		
 
 	except discord.errors.HTTPException as e:
-		await ctx.send(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle.')
+		await ctx.send(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle.', hidden = True)
 
 	except HTTPError as e:
-		await ctx.send("Could not establish a connection.")
+		await ctx.send("Could not establish a connection.", hidden = True)
 
 	except RuntimeError as e:
-		await ctx.send("The file took too long to download.")
+		await ctx.send("The file took too long to download.", hidden = True)
 
 	except BaseException as e:
-		await ctx.send("Something unexpected went wrong. Trying again will likely not help, but feel free to do so.")
+		await ctx.send("Something unexpected went wrong. Trying again will likely not help, but feel free to do so.", hidden = True)
 		raise e
 
 	finally:
