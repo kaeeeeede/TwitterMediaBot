@@ -41,7 +41,10 @@ async def linkMedia(ctx:SlashContext, address):
 		filesize_bytes = get_filesize(path)
 		filesize_mb = format_byte_to_megabyte(filesize_bytes)
 
-		await ctx.channel.send(file=discord.File(path))
+		if not (target := ctx.channel):
+			target = ctx.author
+
+		await target.send(file=discord.File(path))
 		await ctx.send("Done!", hidden = True)
 
 		db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
