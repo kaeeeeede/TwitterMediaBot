@@ -1,4 +1,4 @@
-import youtube_dl
+import yt_dlp
 import shutil
 
 latest_download_destination = ""
@@ -26,7 +26,7 @@ def downloadMedia(url, path = "Downloads", cleanupBeforeDownloading = True):
 		'progress_hooks' : [progress_hook]
 	}
 
-	with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+	with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 	    print(ydl.download([url]))	 
 
 	return latest_download_destination   
