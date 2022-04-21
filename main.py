@@ -1,12 +1,16 @@
 import os
-import discord
 import download_manager
 from db import db
 import datetime
 
+import discord
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option
+
+import lightbulb
+from hikari.presences import Status, Activity
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,99 +19,66 @@ download_timeout = int(os.getenv('DOWNLOAD_TIMEOUT'))
 
 download_manager.max_download_duration = download_timeout
 
-bot = commands.Bot(command_prefix="!", activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
-slash = SlashCommand(bot, sync_commands=True)
+#bot = commands.Bot(command_prefix="!", activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
+bot = lightbulb.BotApp(token = TOKEN)
+#slash = SlashCommand(bot, sync_commands=True)
 
 report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS').split(",")]
 
-@slash.slash(
-	name="linkMedia",
-	description="Takes a URL",
-	options=[
-		create_option(
-			name="address",
-			description="Enter a URL",
-			required=True,
-			option_type=3,
-		)
-	],
-)
+# @slash.slash(
+# 	name="linkMedia",
+# 	description="Takes a URL",
+# 	options=[
+# 		create_option(
+# 			name="address",
+# 			description="Enter a URL",
+# 			required=True,
+# 			option_type=3,
+# 		)
+# 	],
+# )
 
-async def linkMedia(ctx:SlashContext, address):
+@bot.command
+@lightbulb.option("address", "Enter a URL")
+@lightbulb.command("linkmedia", "Downloads (video) media from the specified URL", ephemeral = True, auto_defer = True)
+@lightbulb.implements(lightbulb.SlashCommand)
+
+async def linkMedia(ctx):
 	try:
-		await ctx.defer(hidden=True)
-		await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.playing, name='dead or is busy'))
-		path = download_manager.downloadMedia(address)
+		await bot.update_presence(status = Status.DO_NOT_DISTURB, activity = Activity(name = "dead or is busy", type = 0))
+	
+		path = download_manager.downloadMedia(ctx.options.address)
 		filesize_bytes = get_filesize(path)
 		filesize_mb = format_byte_to_megabyte(filesize_bytes)
 
-		if not (target := ctx.channel):
-			target = ctx.author
+		print(dir(ctx))
 
-		await target.send(file=discord.File(path))
-		await ctx.send("Done!", hidden = True)
+	# 	if not (target := ctx.channel):
+	# 		target = ctx.author
 
-		db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
-		db.commit()		
+	# 	await target.send(file=discord.File(path))
+	# 	await ctx.send("Done!", hidden = True)
 
-	except discord.errors.HTTPException as e:
-		await ctx.send(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle.', hidden = True)
+	# 	db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
+	# 	db.commit()		
 
-	except HTTPError as e:
-		await ctx.send("Could not establish a connection.", hidden = True)
+	# except discord.errors.HTTPException as e:
+	# 	await ctx.send(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle.', hidden = True)
 
-	except RuntimeError as e:
-		await ctx.send("The file took too long to download.", hidden = True)
+	# except HTTPError as e:
+	# 	await ctx.send("Could not establish a connection.", hidden = True)
 
-	except BaseException as e:
-		await ctx.send("Something unexpected went wrong. Trying again will likely not help, but feel free to do so.", hidden = True)
-		raise e
+	# except RuntimeError as e:
+	# 	await ctx.send("The file took too long to download.", hidden = True)
 
+	# except BaseException as e:
+	# 	await ctx.send("Something unexpected went wrong. Trying again will likely not help, but feel free to do so.", hidden = True)
+	# 	raise e
+
+	# finally:
+	# 	await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
 	finally:
-		await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name='the chat'))
-
-@slash.slash(
-	name="report",
-	guild_ids=report_guild_ids,
-	description="Generates a report",
-	options=[
-		create_option(
-			name="startdate",
-			description="Enter the starting date (YYYY-MM-DD)",
-			required=False,
-			option_type=3,
-		),
-		create_option(
-			name="enddate",
-			description="Enter the ending date (YYYY-MM-DD)",
-			required=False,
-			option_type=3,
-		)	
-	],
-)
-async def report(ctx:SlashContext, startdate="", enddate=""):
-	try:
-		if startdate == "":
-			startdate=datetime.date.today()
-		else:
-			startdate=datetime.date.fromisoformat(startdate)
-
-		if enddate == "":
-			enddate=datetime.date.today()
-		else:
-			enddate=datetime.date.fromisoformat(enddate)
-
-	except ValueError as e:
-		await ctx.send("Oops. Might want to follow the given format.")
-
-	else:
-		(sizeSum, countSum) = getTotalCountAndSizeBetween(startdate, enddate)
-		reportEmbed = createReportEmbed(countSum, sizeSum, len(bot.guilds), str(startdate), str(enddate))
-		await ctx.send(embed=reportEmbed)
-
-@bot.event
-async def on_ready():
-	print("Ready!")	
+		pass
 
 def get_filesize(path):
 	return os.path.getsize(path)
@@ -153,4 +124,4 @@ def createReportEmbed(sizeSum, fileCount, serverCount, startDate, endDate):
 
 	return embed
 	
-bot.run(TOKEN)
+bot.run()
