@@ -29,7 +29,7 @@ report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS
 
 async def linkMedia(ctx):
 	try:
-		await ctx.respond("hold up", flags = MessageFlag.EPHEMERAL)
+		await ctx.respond("Downloading...", flags = MessageFlag.EPHEMERAL)
 		await bot.update_presence(status = Status.DO_NOT_DISTURB, activity = Activity(name = "dead or is busy", type = 0))
 	
 		path = download_manager.downloadMedia(ctx.options.address)
@@ -42,13 +42,13 @@ async def linkMedia(ctx):
 		db.commit()		
 
 	except hikari.errors.ClientHTTPResponseError as e:
-		await ctx.respond(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle.', flags = MessageFlag.EPHEMERAL)
+		await ctx.edit_last_response(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle.')
 
 	except RuntimeError as e:
-		await ctx.respond("The file took too long to download.", flags = MessageFlag.EPHEMERAL)
+		await ctx.edit_last_response("The file took too long to download.")
 
 	except BaseException as e:
-		await ctx.respond("Something unexpected went wrong. Trying again will likely not help, but feel free to do so.", flags = MessageFlag.EPHEMERAL)
+		await ctx.edit_last_response("Something unexpected went wrong. Trying again will likely not help, but feel free to do so.")
 		raise e
 
 	finally:
