@@ -52,7 +52,7 @@ async def linkMedia(ctx):
 		raise e
 
 	finally:
-		await bot.update_presence(status = Status.DO_NOT_DISTURB, activity = Activity(type = 3, name='the chat'))
+		await bot.update_presence(status = Status.ONLINE, activity = Activity(type = 3, name='the chat'))
 
 
 def get_filesize(path):
