@@ -36,7 +36,7 @@ async def linkMedia(ctx):
 		filesize_bytes = get_filesize(path)
 		filesize_mb = format_byte_to_megabyte(filesize_bytes)
 		
-		await ctx.respond(f"Requested by {ctx.author.mention}", attachment = path)
+		await ctx.respond(f"Requested by {ctx.author.mention} from <{ctx.options.address}>", attachment = path)
 
 		db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
 		db.commit()		
