@@ -1,7 +1,7 @@
 import yt_dlp
 import shutil
 
-latest_download_destination = ""
+latest_download_destinations = []
 max_download_duration = 60*60
 
 
@@ -11,8 +11,8 @@ def progress_hook(s):
 
 
 	elif s['status'] == 'finished':
-		global latest_download_destination
-		latest_download_destination = s['filename']
+		global latest_download_destinations
+		latest_download_destinations.append(s['filename'])
 	
 
 def downloadMedia(url, path = "Downloads", cleanupBeforeDownloading = True):
@@ -27,9 +27,11 @@ def downloadMedia(url, path = "Downloads", cleanupBeforeDownloading = True):
 	}
 
 	with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-	    print(ydl.download([url]))	 
+	    for entry in ydl.extract_info(url, download=False)['entries']:
+	    	ydl.download(entry['url'])
 
-	return latest_download_destination   
+	return latest_download_destinations   
 
 def cleanup(folder = "Downloads"):
+	latest_download_destinations = []
 	shutil.rmtree(folder, ignore_errors = True)

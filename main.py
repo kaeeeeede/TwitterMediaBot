@@ -32,14 +32,23 @@ async def linkMedia(ctx):
 		await ctx.respond("Downloading...", flags = MessageFlag.EPHEMERAL)
 		await bot.update_presence(status = Status.DO_NOT_DISTURB, activity = Activity(name = "dead or is busy", type = 0))
 	
-		path = download_manager.downloadMedia(ctx.options.address)
-		filesize_bytes = get_filesize(path)
-		filesize_mb = format_byte_to_megabyte(filesize_bytes)
-		
-		await ctx.respond(f"Requested by {ctx.author.mention} from <{ctx.options.address}>", attachment = path)
+		paths = download_manager.downloadMedia(ctx.options.address)
 
-		db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
-		db.commit()		
+		for i,path in enumerate(paths):
+			filesize_bytes = get_filesize(path)
+			filesize_mb = format_byte_to_megabyte(filesize_bytes)
+			
+			message = ""
+
+			if i == 0:
+				message = f"Requested by {ctx.author.mention} from <{ctx.options.address}>"
+
+			await ctx.get_channel().send(message, attachment = path)
+
+			db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
+			db.commit()
+
+		await ctx.respond("Done!", flags = MessageFlag.EPHEMERAL)		
 
 	except hikari.errors.ClientHTTPResponseError as e:
 		await ctx.edit_last_response(f'The absolute unit of a file was way too large ({filesize_mb} MB) for Discord to handle.')
