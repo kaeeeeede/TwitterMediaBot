@@ -27,11 +27,19 @@ def downloadMedia(url, path = "Downloads", cleanupBeforeDownloading = True):
 	}
 
 	with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-	    for entry in ydl.extract_info(url, download=False)['entries']:
-	    	ydl.download(entry['url'])
+
+		info = ydl.extract_info(url, download=False)
+
+		if 'entries' in info:
+			for entry in info['entries']:
+				ydl.download(entry['url'])
+		else:
+			ydl.download([url])
 
 	return latest_download_destinations   
 
+
 def cleanup(folder = "Downloads"):
+	global latest_download_destinations
 	latest_download_destinations = []
 	shutil.rmtree(folder, ignore_errors = True)

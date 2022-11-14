@@ -43,7 +43,7 @@ async def linkMedia(ctx):
 			if i == 0:
 				message = f"Requested by {ctx.author.mention} from <{ctx.options.address}>"
 
-			await ctx.get_channel().send(message, attachment = path)
+			await ctx.respond(message, attachment = path)
 
 			db.execute("INSERT INTO interactions (datetime, url, size) VALUES (?, ?, ?)", (datetime.datetime.now(), filepathToUrl(path), filesize_bytes))		
 			db.commit()
