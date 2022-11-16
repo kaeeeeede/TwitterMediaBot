@@ -21,18 +21,16 @@ bot = lightbulb.BotApp(token = TOKEN)
 
 report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS').split(",")]
 
-
 @bot.command
 @lightbulb.option("address", "Enter a URL")
 @lightbulb.command("linkmedia", "Downloads (video) media from the specified URL", ephemeral = False, auto_defer = False)
 @lightbulb.implements(lightbulb.SlashCommand)
-
 async def linkMedia(ctx):
 	try:
 		await ctx.respond("Downloading...", flags = MessageFlag.EPHEMERAL)
 		await bot.update_presence(status = Status.DO_NOT_DISTURB, activity = Activity(name = "dead or is busy", type = 0))
 	
-		paths = download_manager.downloadMedia(ctx.options.address)
+		paths = download_manager.downloadMedia(ctx.options.address, os.getenv('COOKIES_FILE'))
 
 		for i,path in enumerate(paths):
 			filesize_bytes = get_filesize(path)
@@ -62,7 +60,6 @@ async def linkMedia(ctx):
 
 	finally:
 		await bot.update_presence(status = Status.ONLINE, activity = Activity(type = 3, name='the chat'))
-
 
 def get_filesize(path):
 	return os.path.getsize(path)
