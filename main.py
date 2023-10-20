@@ -11,6 +11,9 @@ from hikari.interactions import ResponseType
 
 from dotenv import load_dotenv
 
+import ffmpeg
+import cv2	
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 download_timeout = int(os.getenv('DOWNLOAD_TIMEOUT'))
@@ -23,6 +26,9 @@ report_guild_ids = [int(server_id) for server_id in os.getenv('REPORT_SERVER_IDS
 
 @bot.command
 @lightbulb.option("address", "Enter a URL")
+@lightbulb.option("video_index", "Which video to download if there is more than 1. If not provided, will download all videos.", required=False, type = int)
+@lightbulb.option("start_trim", "Start trim point (in seconds). Defaults to 0.", required=False, type = float)
+@lightbulb.option("trim_duration", "Duration to trim. Defaults to infinity.", required=False, type = float)
 @lightbulb.command("linkmedia", "Downloads (video) media from the specified URL", ephemeral = False, auto_defer = False)
 @lightbulb.implements(lightbulb.SlashCommand)
 async def linkMedia(ctx):
@@ -32,7 +38,24 @@ async def linkMedia(ctx):
 	
 		paths = download_manager.downloadMedia(ctx.options.address, os.getenv('COOKIES_FILE'))
 
+		if ctx.options.video_index != None:
+			if video_index <= path.length:
+				paths = [paths[ctx.options.video_index - 1]]
+
 		for i,path in enumerate(paths):
+			if ctx.options.trim_duration or ctx.options.start_trim:
+				start_trim = ctx.options.start_trim if ctx.options.start_trim else 0
+
+				end_trim = (start_trim + ctx.options.trim_duration) if ctx.options.trim_duration else get_video_duration(path)
+
+				target_path = removeExtension(path) + " trimmed.mp4"
+
+				input_file = ffmpeg.input(path)
+				output_file = ffmpeg.output(input_file.trim(start=start_trim, end=end_trim), target_path)
+				ffmpeg.run(output_file, overwrite_output=True)
+
+				path = target_path
+
 			filesize_bytes = get_filesize(path)
 			filesize_mb = format_byte_to_megabyte(filesize_bytes)
 			
@@ -104,5 +127,13 @@ def createReportEmbed(sizeSum, fileCount, serverCount, startDate, endDate):
 	embed.set_footer(text=footer)
 
 	return embed
-	
+
+def get_video_duration(path):
+	video = cv2.VideoCapture(path)
+
+	fps = video.get(cv2.CAP_PROP_FPS)
+	frame_count = video.get(cv2.CAP_PROP_FRAME_COUNT)
+
+	return frame_count / fps
+
 bot.run()
